@@ -13,20 +13,28 @@ window.onload = _ => {
 }
 
 function initSocket() {
-  socket = io.connect();
+  console.log('start')
+  socket = io.connect('192.168.0.106:8080');
   socket.on('created', room => {
+    console.log('created');
     isCreator = true;
   });
   socket.on('join', room => {
+    console.log('join');
     isChannelReady = true;
   });
   socket.on('joined', room => {
+    console.log('joined');
     isChannelReady = true;
+  });
+  socket.on('log', params => {
+    console.log('log', params);
   });
   socket.on('message', onMessage);
 }
 
 function connectToRoom(roomId) {
+  console.log('create', roomId);
   socket.emit('create or join', roomId);
 }
 
@@ -35,6 +43,7 @@ function sendMessage(message) {
 }
 
 function onMessage(message) {
+  console.log('onMessage', message);
   if (message === 'got user media') {
     checkForStart();
   } else if (message.type === 'offer') {
@@ -72,6 +81,7 @@ function addLocalStream() {
 }
 
 function checkForStart() {
+  console.log('check for start: ', isStarted, localStream, isChannelReady);
   if (!isStarted && typeof localStream !== 'undefined' && isChannelReady) {
     createPeerConnection();
     pc.addStream(localStream);
@@ -109,7 +119,7 @@ function setLocalAndSendMessage(sessionDescription) {
 
 window.onbeforeunload = function() {
   sendMessage('bye');
-  close();
+  // close();
 };
 
 function close() {
